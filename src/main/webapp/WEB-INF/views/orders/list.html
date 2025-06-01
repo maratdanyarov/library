@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<nav th:replace="~{fragments/header :: navbar}"></nav>
+
+<div class="container mt-4">
+  <h2 th:text="#{nav.my_orders}">My Orders</h2>
+
+  <div th:if="${success}" class="alert alert-success" role="alert">
+    <span th:text="#{${success}}"></span>
+  </div>
+  <div th:if="${error}" class="alert alert-danger" role="alert">
+    <span th:text="${error}"></span>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+      <tr>
+        <th th:text="#{order.id}">ID</th>
+        <th th:text="#{order.book}">Book</th>
+        <th th:text="#{order.type}">Type</th>
+        <th th:text="#{order.status}">Status</th>
+        <th th:text="#{order.date}">Order Date</th>
+        <th th:text="#{order.due_date}">Due Date</th>
+        <th th:text="#{user.actions}">Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="order : ${orders}">
+        <td th:text="${order.id}">1</td>
+        <td>
+          <a th:href="@{/books/{id}(id=${order.bookId})}"
+             th:text="${order.book?.title ?: 'Book #' + order.bookId}">Book Title</a>
+        </td>
+        <td>
+          <span th:if="${order.orderType.name() == 'HOME'}" th:text="#{order.home}">Home</span>
+          <span th:if="${order.orderType.name() == 'READING_ROOM'}" th:text="#{order.reading_room}">Reading Room</span>
+        </td>
+        <td>
+                            <span class="badge"
+                                  th:classappend="${order.status.name() == 'PENDING'} ? 'bg-warning' :
+                                                  (${order.status.name() == 'ISSUED'} ? 'bg-primary' :
+                                                  (${order.status.name() == 'RETURNED'} ? 'bg-success' : 'bg-secondary'))"
+                                  th:text="#{order.__${order.status.name().toLowerCase()}__}">Status</span>
+        </td>
+        <td th:text="${#temporals.format(order.orderDate, 'dd.MM.yyyy HH:mm')}">01.01.2024</td>
+        <td th:text="${order.dueDate != null ? #temporals.format(order.dueDate, 'dd.MM.yyyy') : '-'}">15.01.2024</td>
+        <td>
+          <form th:if="${order.status.name() == 'PENDING'}"
+                th:action="@{/orders/{id}/cancel(id=${order.id})}" method="post"
+                style="display: inline;">
+            <input type="hidden" th:name="_csrf" th:value="${csrfToken}"/>
+            <button type="submit" class="btn btn-sm btn-danger"
+                    onclick="return confirm('Are you sure?')"
+                    th:text="#{action.cancel}">Cancel</button>
+          </form>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div th:if="${#lists.isEmpty(orders)}" class="alert alert-info">
+    You have no orders yet
+  </div>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+<div th:replace="~{fragments/footer :: scripts}"></div>
+</body>
+</html>
