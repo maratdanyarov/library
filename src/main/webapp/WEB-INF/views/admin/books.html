@@ -92,7 +92,7 @@
         <td th:text="${book.title}">Title</td>
         <td th:text="${book.author}">Author</td>
         <td th:text="${book.genre}">Genre</td>
-        <td th:text="${book.publicationYear}">2024</td>
+        <td th:text="${book.publicationYear}">2025</td>
         <td th:text="${book.availableCopies} + '/' + ${book.totalCopies}">5/10</td>
         <td>
           <a th:href="@{/books/{id}(id=${book.id})}" class="btn btn-sm btn-info" th:text="#{action.view}">View</a>
