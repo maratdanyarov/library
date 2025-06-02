@@ -2,14 +2,20 @@ package com.danyarov.library.config;
 
 import com.danyarov.library.interceptor.AuthenticationInterceptor;
 import com.danyarov.library.interceptor.LocaleInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
+import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
+
+import java.util.Locale;
 
 /**
  * Spring MVC configuration
@@ -17,6 +23,20 @@ import org.thymeleaf.templatemode.TemplateMode;
 @Configuration
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
+
+    private LocaleChangeInterceptor localeChangeInterceptor;
+
+    @Autowired
+    public WebConfig(LocaleChangeInterceptor localeChangeInterceptor) {
+        this.localeChangeInterceptor = localeChangeInterceptor;
+    }
+
+    @Bean
+    public LocaleResolver localeResolver() {
+        SessionLocaleResolver localeResolver = new SessionLocaleResolver();
+        localeResolver.setDefaultLocale(Locale.ENGLISH);
+        return localeResolver;
+    }
 
     @Bean
     public SpringResourceTemplateResolver templateResolver() {
@@ -56,7 +76,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LocaleInterceptor());
+        registry.addInterceptor(localeChangeInterceptor);
         registry.addInterceptor(new AuthenticationInterceptor())
                 .addPathPatterns("/**")
                 .excludePathPatterns("/", "/login", "/register", "/static/**", "/books", "/books/search");

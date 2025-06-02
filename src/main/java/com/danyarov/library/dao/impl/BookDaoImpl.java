@@ -249,6 +249,7 @@ public class BookDaoImpl implements BookDao {
                 throw new DatabaseException("Updating book failed, no rows affected.");
             }
 
+            conn.commit();
             logger.info("Book updated successfully: {}", book.getTitle());
             return book;
         } catch (SQLException e) {

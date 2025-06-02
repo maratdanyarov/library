@@ -4,6 +4,8 @@ import com.danyarov.library.model.Order;
 import com.danyarov.library.model.User;
 import com.danyarov.library.service.OrderService;
 import com.danyarov.library.util.SessionUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,18 +21,25 @@ import java.util.List;
 @Controller
 @RequestMapping("/orders")
 public class OrderController {
+    private static final Logger logger = LoggerFactory.getLogger(OrderController.class);
+
+    private OrderService orderService;
 
     @Autowired
-    private OrderService orderService;
+    public OrderController(OrderService orderService) {
+        this.orderService = orderService;
+    }
 
     @GetMapping("/my")
     public String myOrders(HttpSession session, Model model) {
         User user = SessionUtil.getCurrentUser(session);
         if (user == null) {
+            logger.warn("Unauthorized access attempt to my orders");
             return "redirect:/login";
         }
 
         List<Order> orders = orderService.findByUser(user.getId());
+        logger.info("Found {} orders for user {}", orders.size(), user.getId());
         model.addAttribute("orders", orders);
         return "orders/list";
     }
@@ -41,14 +50,42 @@ public class OrderController {
                               RedirectAttributes redirectAttributes) {
         User user = SessionUtil.getCurrentUser(session);
         if (user == null) {
+            logger.warn("Unauthorized cancellation attempt for order {}", id);
             return "redirect:/login";
         }
 
+        logger.info("User {} attempting to cancel order {}", user.getId(), id);
+
         try {
+            Order order = orderService.findById(id).get();
+            if (order == null) {
+                logger.error("Order {} not found", id);
+                redirectAttributes.addFlashAttribute("error", "Order not found");
+                return "redirect:/orders/my";
+            }
+
+            if (!order.getUserId().equals(user.getId())) {
+                logger.error("User {} attempted to cancel order {} belonging to user {}",
+                        user.getId(), id, order.getUserId());
+                redirectAttributes.addFlashAttribute("error", "Access denied");
+                return "redirect:/orders/my";
+            }
+
+            // Check if order can be cancelled
+            if (!"PENDING".equals(order.getStatus().name())) {
+                logger.error("Cannot cancel order {} with status {}", id, order.getStatus());
+                redirectAttributes.addFlashAttribute("error", "Cannot cancel order with status: " + order.getStatus());
+                return "redirect:/orders/my";
+            }
+
             orderService.cancelOrder(id, user.getId());
             redirectAttributes.addFlashAttribute("success", "msg.order_cancelled");
-        } catch (Exception e) {
+        } catch (IllegalStateException e) {
+            logger.error("Cannot cancel order {}: {}", id, e.getMessage());
             redirectAttributes.addFlashAttribute("error", e.getMessage());
+        } catch (Exception e) {
+            logger.error("Unexpected error cancelling order {}: {}", id, e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("error", "An unexpected error occurred");
         }
 
         return "redirect:/orders/my";

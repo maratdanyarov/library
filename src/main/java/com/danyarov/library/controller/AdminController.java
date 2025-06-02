@@ -7,6 +7,7 @@ import com.danyarov.library.model.UserRole;
 import com.danyarov.library.model.User;
 import com.danyarov.library.service.BookService;
 import com.danyarov.library.service.UserService;
+import com.danyarov.library.util.SessionUtil;
 import com.danyarov.library.util.ValidationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -85,6 +86,24 @@ public class AdminController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
+        return "redirect:/admin/books";
+    }
+
+    @GetMapping("/books/{id}/edit")
+    public String showEditForm(@PathVariable("id") Long id, Model model) {
+        Book book = bookService.findById(id)
+                .orElseThrow(() -> new ServiceException("Book with id " + id + " not found"));
+        model.addAttribute("book", book);
+        return "admin/book-edit";
+    }
+
+    @PostMapping("/books/{id}/edit")
+    public String updateBook(@PathVariable("id") long id,
+                             @ModelAttribute("book") Book book,
+                             RedirectAttributes redirectAttributes) {
+        book.setId(id);
+        bookService.update(book);
+        redirectAttributes.addFlashAttribute("success", "Book updated successfully");
         return "redirect:/admin/books";
     }
 }

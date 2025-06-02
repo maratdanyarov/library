@@ -96,6 +96,7 @@
         <td th:text="${book.availableCopies} + '/' + ${book.totalCopies}">5/10</td>
         <td>
           <a th:href="@{/books/{id}(id=${book.id})}" class="btn btn-sm btn-info" th:text="#{action.view}">View</a>
+          <a th:href="@{/admin/books/{id}/edit(id=${book.id})}" class="btn btn-sm btn-warning" th:text="#{action.edit}">Edit</a>
           <form th:action="@{/admin/books/{id}/delete(id=${book.id})}"
                 method="post" style="display: inline;">
             <input type="hidden" th:name="_csrf" th:value="${csrfToken}"/>
