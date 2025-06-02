@@ -1,5 +1,11 @@
 -- Database schema for Library Management System
 
+-- Drop tables if they exist (in reverse order of dependencies)
+DROP TABLE IF EXISTS book_orders;
+DROP TABLE IF EXISTS book_copies;
+DROP TABLE IF EXISTS books;
+DROP TABLE IF EXISTS users;
+
 -- Create users table
 CREATE TABLE users (
                        id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -7,12 +13,12 @@ CREATE TABLE users (
                        password VARCHAR(255) NOT NULL,
                        first_name VARCHAR(100) NOT NULL,
                        last_name VARCHAR(100) NOT NULL,
-                       userRole VARCHAR(50) NOT NULL,
+                       user_role VARCHAR(50) NOT NULL,
                        is_active BOOLEAN DEFAULT TRUE,
                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                        INDEX idx_email (email),
-                       INDEX idx_role (userRole)
+                       INDEX idx_user_role (user_role)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create books table

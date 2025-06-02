@@ -1,15 +1,8 @@
 package com.danyarov.library.config;
 
-import com.danyarov.library.dao.BookDao;
-import com.danyarov.library.dao.OrderDao;
-import com.danyarov.library.dao.UserDao;
-import com.danyarov.library.dao.impl.BookDaoImpl;
-import com.danyarov.library.dao.impl.OrderDaoImpl;
-import com.danyarov.library.dao.impl.UserDaoImpl;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import com.danyarov.library.dao.*;
+import com.danyarov.library.dao.impl.*;
+import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.web.servlet.LocaleResolver;

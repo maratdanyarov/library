@@ -303,7 +303,24 @@ public class OrderDaoImpl implements OrderDao {
                 "LEFT JOIN users l ON o.librarian_id = l.id " +
                 "ORDER BY o.order_date DESC";
 
-        return findOrdersWithDetails(sql);
+        Connection conn = null;
+        List<Order> orders = new ArrayList<>();
+
+        try {
+            conn = connectionPool.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                orders.add(mapResultSetToOrderWithDetails(rs));
+            }
+            return orders;
+        } catch (SQLException e) {
+            logger.error("Error finding orders with details", e);
+            throw new DatabaseException("Error finding orders with details", e);
+        } finally {
+            connectionPool.releaseConnection(conn);
+        }
     }
 
     @Override
@@ -335,27 +352,6 @@ public class OrderDaoImpl implements OrderDao {
         } catch (SQLException e) {
             logger.error("Error finding orders by status with details", e);
             throw new DatabaseException("Error finding orders by status with details", e);
-        } finally {
-            connectionPool.releaseConnection(conn);
-        }
-    }
-
-    private List<Order> findOrdersWithDetails(String sql) {
-        Connection conn = null;
-        List<Order> orders = new ArrayList<>();
-
-        try {
-            conn = connectionPool.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                orders.add(mapResultSetToOrderWithDetails(rs));
-            }
-            return orders;
-        } catch (SQLException e) {
-            logger.error("Error finding orders with details", e);
-            throw new DatabaseException("Error finding orders with details", e);
         } finally {
             connectionPool.releaseConnection(conn);
         }

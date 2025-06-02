@@ -95,7 +95,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> findByRole(String role) {
-        String sql = "SELECT * FROM users WHERE role = ? ORDER BY id";
+        String sql = "SELECT * FROM users WHERE user_role = ? ORDER BY id";
         Connection conn = null;
         List<User> users = new ArrayList<>();
 
@@ -119,7 +119,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User save(User user) {
-        String sql = "INSERT INTO users (email, password, first_name, last_name, role, is_active) " +
+        String sql = "INSERT INTO users (email, password, first_name, last_name, user_role, is_active) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
         Connection conn = null;
 
@@ -159,7 +159,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public User update(User user) {
         String sql = "UPDATE users SET email = ?, first_name = ?, last_name = ?, " +
-                "role = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+                "user_role = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
         Connection conn = null;
 
         try {
@@ -215,7 +215,7 @@ public class UserDaoImpl implements UserDao {
         user.setPassword(rs.getString("password"));
         user.setFirstName(rs.getString("first_name"));
         user.setLastName(rs.getString("last_name"));
-        user.setRole(UserRole.fromString(rs.getString("role")));
+        user.setRole(UserRole.fromString(rs.getString("user_role")));
         user.setActive(rs.getBoolean("is_active"));
         user.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
         user.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());

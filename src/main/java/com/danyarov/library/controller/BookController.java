@@ -53,7 +53,7 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
-    public String viewBook(@PathVariable Long id, Model model, HttpSession session) {
+    public String viewBook(@PathVariable("id") Long id, Model model, HttpSession session) {
         Optional<Book> book = bookService.findById(id);
         if (book.isEmpty()) {
             return "redirect:/books";
@@ -72,7 +72,7 @@ public class BookController {
     }
 
     @PostMapping("/{id}/request")
-    public String requestBook(@PathVariable Long id,
+    public String requestBook(@PathVariable("id") Long id,
                               @RequestParam OrderType orderType,
                               HttpSession session,
                               RedirectAttributes redirectAttributes) {

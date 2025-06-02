@@ -36,7 +36,7 @@ public class OrderController {
     }
 
     @PostMapping("/{id}/cancel")
-    public String cancelOrder(@PathVariable Long id,
+    public String cancelOrder(@PathVariable("id") Long id,
                               HttpSession session,
                               RedirectAttributes redirectAttributes) {
         User user = SessionUtil.getCurrentUser(session);

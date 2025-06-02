@@ -44,7 +44,7 @@ public class LibrarianController {
     }
 
     @PostMapping("/orders/{id}/issue")
-    public String issueOrder(@PathVariable Long id,
+    public String issueOrder(@PathVariable("id") Long id,
                              @RequestParam(defaultValue = "14") int days,
                              HttpSession session,
                              RedirectAttributes redirectAttributes) {
@@ -61,7 +61,7 @@ public class LibrarianController {
     }
 
     @PostMapping("/orders/{id}/return")
-    public String returnOrder(@PathVariable Long id,
+    public String returnOrder(@PathVariable("id") Long id,
                               HttpSession session,
                               RedirectAttributes redirectAttributes) {
         User librarian = SessionUtil.getCurrentUser(session);

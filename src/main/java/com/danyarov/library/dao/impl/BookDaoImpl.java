@@ -179,6 +179,8 @@ public class BookDaoImpl implements BookDao {
 
         try {
             conn = connectionPool.getConnection();
+            conn.setAutoCommit(false);
+
             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, book.getTitle());
             stmt.setString(2, book.getAuthor());
@@ -202,9 +204,17 @@ public class BookDaoImpl implements BookDao {
                 }
             }
 
+            conn.commit();
             logger.info("Book saved successfully: {}", book.getTitle());
             return book;
         } catch (SQLException e) {
+            try {
+                if (conn != null) {
+                    conn.rollback();
+                }
+            } catch (SQLException ex) {
+                logger.error("Error rolling back 'book save' transaction", ex);
+            }
             logger.error("Error saving book", e);
             throw new DatabaseException("Error saving book", e);
         } finally {
@@ -221,6 +231,8 @@ public class BookDaoImpl implements BookDao {
 
         try {
             conn = connectionPool.getConnection();
+            conn.setAutoCommit(false);
+
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, book.getTitle());
             stmt.setString(2, book.getAuthor());
@@ -240,6 +252,13 @@ public class BookDaoImpl implements BookDao {
             logger.info("Book updated successfully: {}", book.getTitle());
             return book;
         } catch (SQLException e) {
+            try {
+                if (conn != null) {
+                    conn.rollback();
+                }
+            } catch (SQLException ex) {
+                logger.error("Error rolling back 'book update' transaction", ex);
+            }
             logger.error("Error updating book", e);
             throw new DatabaseException("Error updating book", e);
         } finally {

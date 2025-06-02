@@ -40,7 +40,7 @@ public class AdminController {
     }
 
     @PostMapping("/users/{id}/toggle-status")
-    public String toggleUserStatus(@PathVariable Long id,
+    public String toggleUserStatus(@PathVariable("id") Long id,
                                    RedirectAttributes redirectAttributes) {
         try {
             userService.toggleActiveStatus(id);
@@ -77,7 +77,7 @@ public class AdminController {
     }
 
     @PostMapping("/books/{id}/delete")
-    public String deleteBook(@PathVariable Long id,
+    public String deleteBook(@PathVariable("id") Long id,
                              RedirectAttributes redirectAttributes) {
         try {
             bookService.delete(id);

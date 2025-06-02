@@ -62,15 +62,15 @@ CREATE DATABASE library CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 3. Configure database connection in `src/main/resources/application.properties`:
 ```properties
-db.url=jdbc:mysql://localhost:3306/library?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+db.url=jdbc:mysql://localhost:3306/library_db?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
 db.username=your_username
 db.password=your_password
 ```
 
 4. Initialize database schema:
 ```bash
-mysql -u your_username -p library < src/main/resources/db/schema.sql
-mysql -u your_username -p library < src/main/resources/db/data.sql
+mysql -u your_username -p library_db < src/main/resources/db/schema.sql
+mysql -u your_username -p library_db < src/main/resources/db/data.sql
 ```
 
 5. Build the project:
