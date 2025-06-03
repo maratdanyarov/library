@@ -3,29 +3,48 @@ package com.danyarov.library.model;
 import java.time.LocalDateTime;
 
 /**
- * Order entity representing book requests
+ * Represents a user's order to borrow or reserve a book copy from the library.
+ * This includes metadata about the user, the book, the copy, status, and timing of the order lifecycle.
  */
 public class Order {
+    /** Unique identifier for the order */
     private Long id;
+    /** ID of the user who placed the order */
     private Long userId;
+    /** ID of the book involved in the order */
     private Long bookId;
+    /** ID of the specific book copy assigned to this order (can be null for reservations) */
     private Long bookCopyId;
+    /** Type of order (e.g., HOME or RESERVE) */
     private OrderType orderType;
+    /** Current status of the order (e.g., PENDING, ISSUED, RETURNED) */
     private OrderStatus status;
+    /** Date the order was placed */
     private LocalDateTime orderDate;
+    /** Date the book copy was issued to the user */
     private LocalDateTime issueDate;
+    /** Due date for returning the book */
     private LocalDateTime dueDate;
+    /** Actual return date of the book copy */
     private LocalDateTime returnDate;
+    /** ID of the librarian processing the order */
     private Long librarianId;
+    /** Additional comments or remarks */
     private String notes;
 
-
+    /** User who placed the order */
     private User user;
+    /** Book requested */
     private Book book;
+    /** Book copy involved in the transaction */
     private BookCopy bookCopy;
+    /** Librarian handling the order */
     private User librarian;
 
-    // Builder pattern implementation
+    /**
+     * Builder class for creating instances of Order.
+     * Allows flexible construction for optional parameters.
+     */
     public static class Builder {
         private Long id;
         private Long userId;
@@ -39,6 +58,11 @@ public class Order {
         private LocalDateTime returnDate;
         private Long librarianId;
         private String notes;
+
+        public Builder id(Long id) {
+            this.id = id;
+            return this;
+        }
 
         public Builder userId(Long userId) {
             this.userId = userId;

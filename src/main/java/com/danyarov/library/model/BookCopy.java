@@ -3,17 +3,36 @@ package com.danyarov.library.model;
 import java.time.LocalDateTime;
 
 /**
- * Book copy entity representing individual copies of books
+ * Represents a physical copy of a book in the library.
+ * Each book copy is associated with a specific Book via bookId,
+ * and has its own inventory number and availability status.
  */
 public class BookCopy {
+    /** Unique identifier of the book copy */
     private Long id;
+    /** Identifier of the associated book (foreign key) */
     private Long bookId;
+    /** Unique inventory number of the copy (e.g., barcode or asset tag) */
     private String inventoryNumber;
+    /** Status of the book copy (e.g., AVAILABLE, CHECKED_OUT, LOST) */
     private BookCopyStatus status;
+    /** Timestamp when the book copy record was created */
     private LocalDateTime createdAt;
 
+    /**
+     * Default constructor.
+     */
     public BookCopy() {}
 
+    /**
+     * Full constructor for creating a book copy instance.
+     *
+     * @param id              the unique ID of the book copy
+     * @param bookId          the ID of the associated book
+     * @param inventoryNumber the unique inventory number for this copy
+     * @param status          the current status of the copy
+     * @param createdAt       the timestamp when the copy was added to the system
+     */
     public BookCopy(Long id, Long bookId, String inventoryNumber,
                     BookCopyStatus status, LocalDateTime createdAt) {
         this.id = id;

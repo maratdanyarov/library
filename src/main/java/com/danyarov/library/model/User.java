@@ -3,21 +3,44 @@ package com.danyarov.library.model;
 import java.time.LocalDateTime;
 
 /**
- * User entity representing library users
+ * Represents a user of the library system.
+ * Includes personal details, role, account status, and audit timestamps.
  */
 public class User {
+    /** Unique identifier of the user */
     private Long id;
+    /** Email address of the user (used for login) */
     private String email;
+    /** Encrypted password of the user */
     private String password;
+    /** User's first name */
     private String firstName;
+    /** User's last name */
     private String lastName;
+    /** Role of the user (e.g., ADMIN, LIBRARIAN, READER) */
     private UserRole role;
+    /** Indicates whether the user's account is active */
     private boolean isActive;
+    /** Timestamp of when the user was created */
     private LocalDateTime createdAt;
+    /** Timestamp of the last update to the user data */
     private LocalDateTime updatedAt;
 
     public User() {}
 
+    /**
+     * Full constructor for user entity.
+     *
+     * @param id         unique user ID
+     * @param email      user email
+     * @param password   encrypted password
+     * @param firstName  user's first name
+     * @param lastName   user's last name
+     * @param role       user role
+     * @param isActive   whether the account is active
+     * @param createdAt  creation timestamp
+     * @param updatedAt  last update timestamp
+     */
     public User(Long id, String email, String password, String firstName,
                 String lastName, UserRole role, boolean isActive,
                 LocalDateTime createdAt, LocalDateTime updatedAt) {
@@ -59,6 +82,9 @@ public class User {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
+    /**
+     * @return full name composed of first and last name
+     */
     public String getFullName() {
         return firstName + " " + lastName;
     }
