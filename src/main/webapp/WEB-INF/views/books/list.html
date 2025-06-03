@@ -31,8 +31,8 @@
           <p class="card-text">
             <small class="text-muted" th:text="${book.genre}">Genre</small><br>
             <span th:text="#{book.available_copies} + ': ' + ${book.availableCopies} + '/' + ${book.totalCopies}">
-                                Available: 5/10
-                            </span>
+              Available: 5/10
+            </span>
           </p>
           <a th:href="@{/books/{id}(id=${book.id})}" class="btn btn-primary btn-sm"
              th:text="#{action.view}">View</a>
@@ -44,10 +44,57 @@
   <div th:if="${#lists.isEmpty(books)}" class="alert alert-info">
     No books found
   </div>
+
+  <!-- Pagination -->
+  <nav th:if="${bookPage != null and bookPage.totalPages > 1}" aria-label="Book pagination">
+    <ul class="pagination justify-content-center">
+      <!-- First Page -->
+      <li class="page-item" th:classappend="${bookPage.first} ? 'disabled'">
+        <a class="page-link" th:href="@{/books(page=0, size=${pageSize})} + ${searchParam}"
+           tabindex="-1">First</a>
+      </li>
+
+      <!-- Previous Page -->
+      <li class="page-item" th:classappend="${!bookPage.hasPrevious()} ? 'disabled'">
+        <a class="page-link"
+           th:href="@{/books(page=${bookPage.previousPageNumber}, size=${pageSize})} + ${searchParam}"
+           tabindex="-1">Previous</a>
+      </li>
+
+      <!-- Page Numbers -->
+      <li class="page-item"
+          th:each="pageNum : ${bookPage.getPageRange(5)}"
+          th:classappend="${pageNum == bookPage.pageNumber} ? 'active'">
+        <a class="page-link"
+           th:href="@{/books(page=${pageNum}, size=${pageSize})} + ${searchParam}"
+           th:text="${pageNum + 1}">1</a>
+      </li>
+
+      <!-- Next Page -->
+      <li class="page-item" th:classappend="${!bookPage.hasNext()} ? 'disabled'">
+        <a class="page-link"
+           th:href="@{/books(page=${bookPage.nextPageNumber}, size=${pageSize})} + ${searchParam}">Next</a>
+      </li>
+
+      <!-- Last Page -->
+      <li class="page-item" th:classappend="${bookPage.last} ? 'disabled'">
+        <a class="page-link"
+           th:href="@{/books(page=${bookPage.totalPages - 1}, size=${pageSize})} + ${searchParam}">Last</a>
+      </li>
+    </ul>
+
+    <!-- Page Info -->
+    <div class="text-center text-muted mb-3">
+      <small>
+        Page <span th:text="${bookPage.pageNumber + 1}">1</span> of
+        <span th:text="${bookPage.totalPages}">10</span>
+        (Total: <span th:text="${bookPage.totalElements}">100</span> books)
+      </small>
+    </div>
+  </nav>
 </div>
 
 <footer th:replace="~{fragments/footer :: footer}"></footer>
 <div th:replace="~{fragments/footer :: scripts}"></div>
 </body>
 </html>
-

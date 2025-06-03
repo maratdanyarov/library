@@ -3,6 +3,7 @@ package com.danyarov.library.controller;
 import com.danyarov.library.model.Book;
 import com.danyarov.library.model.Order;
 import com.danyarov.library.model.OrderType;
+import com.danyarov.library.model.Page;
 import com.danyarov.library.model.User;
 import com.danyarov.library.service.BookService;
 import com.danyarov.library.service.OrderService;
@@ -23,6 +24,8 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/books")
 public class BookController {
+    private static final int DEFAULT_PAGE_SIZE = 12;
+
     private BookService bookService;
     private OrderService orderService;
 
@@ -35,20 +38,39 @@ public class BookController {
     @GetMapping
     public String listBooks(@RequestParam(required = false) String search,
                             @RequestParam(required = false) String genre,
+                            @RequestParam(defaultValue = "0") int page,
+                            @RequestParam(defaultValue = "12") int size,
                             Model model) {
-        List<Book> books;
+        Page<Book> bookPage;
+
+        // Ensure page parameters are valid
+        if (page < 0) page = 0;
+        if (size <= 0) size = DEFAULT_PAGE_SIZE;
 
         if (search != null && !search.trim().isEmpty()) {
-            books = bookService.search(search);
+            bookPage = bookService.searchPaginated(search, page, size);
             model.addAttribute("search", search);
         } else if (genre != null && !genre.trim().isEmpty()) {
-            books = bookService.findByGenre(genre);
+            bookPage = bookService.findByGenrePaginated(genre, page, size);
             model.addAttribute("genre", genre);
         } else {
-            books = bookService.findAll();
+            bookPage = bookService.findAllPaginated(page, size);
         }
 
-        model.addAttribute("books", books);
+        model.addAttribute("bookPage", bookPage);
+        model.addAttribute("books", bookPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", size);
+
+        // For pagination links
+        if (search != null) {
+            model.addAttribute("searchParam", "&search=" + search);
+        } else if (genre != null) {
+            model.addAttribute("searchParam", "&genre=" + genre);
+        } else {
+            model.addAttribute("searchParam", "");
+        }
+
         return "books/list";
     }
 

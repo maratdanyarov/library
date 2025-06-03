@@ -28,6 +28,7 @@
         <th th:text="#{order.date}">Order Date</th>
         <th th:text="#{order.due_date}">Due Date</th>
         <th th:text="#{user.actions}">Actions</th>
+        <th th:text="#{order.notice}">Notice</th>
       </tr>
       </thead>
       <tbody>
@@ -62,11 +63,15 @@
             <button type="submit" class="btn btn-sm btn-danger"
                     th:text="#{action.cancel}">Cancel</button>
           </form>
-
-          <!-- Debug info (remove in production) -->
-          <small class="text-muted d-block" th:if="${order.status.name() != 'PENDING'}">
-            Status: <span th:text="${order.status.name()}"></span>
-          </small>
+        </td>
+        <td>
+          <!-- Overdue Badge -->
+          <span th:if="${order.status.name() == 'ISSUED'
+                                and order.dueDate != null
+                                and order.dueDate.isBefore(#temporals.createNow())}"
+                class="badge bg-danger"
+                th:text="#{order.overdue}">Overdue</span>
+        </td>
         </td>
       </tr>
       </tbody>

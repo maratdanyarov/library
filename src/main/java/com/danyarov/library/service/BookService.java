@@ -1,6 +1,7 @@
 package com.danyarov.library.service;
 
 import com.danyarov.library.model.Book;
+import com.danyarov.library.model.Page;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +23,8 @@ public interface BookService {
      */
     List<Book> findAll();
 
+    Page<Book> findAllPaginated(int pageNumber, int pageSize);
+
     /**
      * Search books
      * @param searchTerm search term
@@ -29,12 +32,16 @@ public interface BookService {
      */
     List<Book> search(String searchTerm);
 
+    Page<Book> searchPaginated(String searchTerm, int pageNumber, int pageSize);
+
     /**
      * Find books by genre
      * @param genre book genre
      * @return list of books in specified genre
      */
     List<Book> findByGenre(String genre);
+
+    Page<Book> findByGenrePaginated(String genre, int pageNumber, int pageSize);
 
     /**
      * Save book

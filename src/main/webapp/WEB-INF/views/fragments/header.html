@@ -20,7 +20,7 @@
                 <li class="nav-item" th:if="${session.user == null or session.user.role.name() != 'ADMIN'}">
                     <a class="nav-link" th:href="@{/books}" th:text="#{nav.books}">Books</a>
                 </li>
-                <li class="nav-item" th:if="${session.user != null and session.user.role.name() != 'ADMIN'}">
+                <li class="nav-item" th:if="${session.user != null and session.user.role.name() != 'ADMIN' and session.user.role.name() != 'LIBRARIAN'}">
                     <a class="nav-link" th:href="@{/orders/my}" th:text="#{nav.my_orders}">My Orders</a>
                 </li>
                 <li class="nav-item" th:if="${session.user != null and (session.user.role.name() == 'LIBRARIAN' or session.user.role.name() == 'ADMIN')}">

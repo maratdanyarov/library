@@ -1,6 +1,7 @@
 package com.danyarov.library.service.impl;
 
 import com.danyarov.library.dao.UserDao;
+import com.danyarov.library.exception.InactiveAccountException;
 import com.danyarov.library.exception.ServiceException;
 import com.danyarov.library.model.User;
 import com.danyarov.library.model.UserRole;
@@ -55,7 +56,7 @@ public class UserServiceImpl implements UserService {
 
             if (!user.isActive()) {
                 logger.warn("Authentication failed for inactive user: {}", email);
-                return Optional.empty();
+                throw new InactiveAccountException();
             }
 
             if (PasswordEncoder.matches(password, user.getPassword())) {

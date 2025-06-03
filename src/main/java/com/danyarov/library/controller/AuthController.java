@@ -1,5 +1,6 @@
 package com.danyarov.library.controller;
 
+import com.danyarov.library.exception.InactiveAccountException;
 import com.danyarov.library.exception.ServiceException;
 import com.danyarov.library.exception.ValidationException;
 import com.danyarov.library.model.User;
@@ -65,6 +66,10 @@ public class AuthController {
                 return "redirect:/login";
             }
         } catch (ValidationException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            redirectAttributes.addFlashAttribute("email", email);
+            return "redirect:/login";
+        } catch (InactiveAccountException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             redirectAttributes.addFlashAttribute("email", email);
             return "redirect:/login";

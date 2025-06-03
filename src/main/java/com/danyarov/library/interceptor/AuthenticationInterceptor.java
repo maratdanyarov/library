@@ -41,8 +41,15 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        // Order management paths
+        // Order management paths - allow readers to access their own orders and cancel them
         if (path.startsWith("/orders/") && !path.startsWith("/orders/my")) {
+            // Allow cancel action for readers if it's their own order
+            if (path.matches("/orders/\\d+/cancel")) {
+                // The controller will verify ownership
+                return true;
+            }
+
+            // For other /orders/ paths, redirect readers to their orders
             if (user.getRole() == UserRole.READER) {
                 response.sendRedirect(request.getContextPath() + "/orders/my");
                 return false;

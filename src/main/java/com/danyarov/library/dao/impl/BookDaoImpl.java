@@ -4,6 +4,7 @@ import com.danyarov.library.dao.BookDao;
 import com.danyarov.library.dao.ConnectionPool;
 import com.danyarov.library.exception.DatabaseException;
 import com.danyarov.library.model.Book;
+import com.danyarov.library.model.Page;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +65,37 @@ public class BookDaoImpl implements BookDao {
         } catch (SQLException e) {
             logger.error("Error finding all books", e);
             throw new DatabaseException("Error finding all books", e);
+        } finally {
+            connectionPool.releaseConnection(conn);
+        }
+    }
+
+    @Override
+    public Page<Book> findAllPaginated(int pageNumber, int pageSize) {
+        String sql = "SELECT * FROM books ORDER BY title LIMIT ? OFFSET ?";
+        Connection conn = null;
+        List<Book> books = new ArrayList<>();
+
+        try {
+            conn = connectionPool.getConnection();
+
+            // Get total count
+            long totalElements = countAll();
+
+            // Get page data
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, pageSize);
+            stmt.setInt(2, pageNumber * pageSize);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                books.add(mapResultSetToBook(rs));
+            }
+
+            return new Page<>(books, pageNumber, pageSize, totalElements);
+        } catch (SQLException e) {
+            logger.error("Error finding books with pagination", e);
+            throw new DatabaseException("Error finding books with pagination", e);
         } finally {
             connectionPool.releaseConnection(conn);
         }
@@ -142,6 +174,38 @@ public class BookDaoImpl implements BookDao {
     }
 
     @Override
+    public Page<Book> findByGenrePaginated(String genre, int pageNumber, int pageSize) {
+        String sql = "SELECT * FROM books WHERE LOWER(genre) = LOWER(?) ORDER BY title LIMIT ? OFFSET ?";
+        Connection conn = null;
+        List<Book> books = new ArrayList<>();
+
+        try {
+            conn = connectionPool.getConnection();
+
+            // Get total count
+            long totalElements = countByGenre(genre);
+
+            // Get page data
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, genre);
+            stmt.setInt(2, pageSize);
+            stmt.setInt(3, pageNumber * pageSize);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                books.add(mapResultSetToBook(rs));
+            }
+
+            return new Page<>(books, pageNumber, pageSize, totalElements);
+        } catch (SQLException e) {
+            logger.error("Error finding books by genre with pagination: {}", genre, e);
+            throw new DatabaseException("Error finding books by genre with pagination", e);
+        } finally {
+            connectionPool.releaseConnection(conn);
+        }
+    }
+
+    @Override
     public List<Book> search(String searchTerm) {
         String sql = "SELECT * FROM books WHERE LOWER(title) LIKE LOWER(?) " +
                 "OR LOWER(author) LIKE LOWER(?) OR LOWER(genre) LIKE LOWER(?) " +
@@ -166,6 +230,118 @@ public class BookDaoImpl implements BookDao {
         } catch (SQLException e) {
             logger.error("Error searching books: {}", searchTerm, e);
             throw new DatabaseException("Error searching books", e);
+        } finally {
+            connectionPool.releaseConnection(conn);
+        }
+    }
+
+    @Override
+    public Page<Book> searchPaginated(String searchTerm, int pageNumber, int pageSize) {
+        String sql = "SELECT * FROM books WHERE LOWER(title) LIKE LOWER(?) " +
+                "OR LOWER(author) LIKE LOWER(?) OR LOWER(genre) LIKE LOWER(?) " +
+                "OR LOWER(description) LIKE LOWER(?) ORDER BY title LIMIT ? OFFSET ?";
+        Connection conn = null;
+        List<Book> books = new ArrayList<>();
+
+        try {
+            conn = connectionPool.getConnection();
+
+            // Get total count
+            long totalElements = countBySearchTerm(searchTerm);
+
+            // Get page data
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            String searchPattern = "%" + searchTerm + "%";
+            stmt.setString(1, searchPattern);
+            stmt.setString(2, searchPattern);
+            stmt.setString(3, searchPattern);
+            stmt.setString(4, searchPattern);
+            stmt.setInt(5, pageSize);
+            stmt.setInt(6, pageNumber * pageSize);
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                books.add(mapResultSetToBook(rs));
+            }
+
+            return new Page<>(books, pageNumber, pageSize, totalElements);
+        } catch (SQLException e) {
+            logger.error("Error searching books with pagination: {}", searchTerm, e);
+            throw new DatabaseException("Error searching books with pagination", e);
+        } finally {
+            connectionPool.releaseConnection(conn);
+        }
+    }
+
+    @Override
+    public long countAll() {
+        String sql = "SELECT COUNT(*) FROM books";
+        Connection conn = null;
+
+        try {
+            conn = connectionPool.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getLong(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            logger.error("Error counting all books", e);
+            throw new DatabaseException("Error counting all books", e);
+        } finally {
+            connectionPool.releaseConnection(conn);
+        }
+    }
+
+    @Override
+    public long countBySearchTerm(String searchTerm) {
+        String sql = "SELECT COUNT(*) FROM books WHERE LOWER(title) LIKE LOWER(?) " +
+                "OR LOWER(author) LIKE LOWER(?) OR LOWER(genre) LIKE LOWER(?) " +
+                "OR LOWER(description) LIKE LOWER(?)";
+        Connection conn = null;
+
+        try {
+            conn = connectionPool.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            String searchPattern = "%" + searchTerm + "%";
+            stmt.setString(1, searchPattern);
+            stmt.setString(2, searchPattern);
+            stmt.setString(3, searchPattern);
+            stmt.setString(4, searchPattern);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getLong(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            logger.error("Error counting books by search term: {}", searchTerm, e);
+            throw new DatabaseException("Error counting books by search term", e);
+        } finally {
+            connectionPool.releaseConnection(conn);
+        }
+    }
+
+    @Override
+    public long countByGenre(String genre) {
+        String sql = "SELECT COUNT(*) FROM books WHERE LOWER(genre) = LOWER(?)";
+        Connection conn = null;
+
+        try {
+            conn = connectionPool.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, genre);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getLong(1);
+            }
+            return 0;
+        } catch (SQLException e) {
+            logger.error("Error counting books by genre: {}", genre, e);
+            throw new DatabaseException("Error counting books by genre", e);
         } finally {
             connectionPool.releaseConnection(conn);
         }

@@ -1,6 +1,7 @@
 package com.danyarov.library.dao;
 
 import com.danyarov.library.model.Book;
+import com.danyarov.library.model.Page;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,8 @@ public interface BookDao {
      * @return list of all books
      */
     List<Book> findAll();
+
+    Page<Book> findAllPaginated(int pageNumber, int pageSize);
 
     /**
      * Find books by title (partial match)
@@ -43,12 +46,23 @@ public interface BookDao {
      */
     List<Book> findByGenre(String genre);
 
+
+    Page<Book> findByGenrePaginated(String genre, int pageNumber, int pageSize);
+
     /**
      * Search books by multiple criteria
      * @param searchTerm search term
      * @return list of matching books
      */
     List<Book> search(String searchTerm);
+
+    Page<Book> searchPaginated(String searchTerm, int pageNumber, int pageSize);
+
+    long countAll();
+
+    long countBySearchTerm(String searchTerm);
+
+    long countByGenre(String genre);
 
     /**
      * Save new book
