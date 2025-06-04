@@ -63,20 +63,4 @@ public class ValidationUtil {
             throw new ValidationException(fieldName, fieldName + " must be positive");
         }
     }
-
-    /**
-     * Sanitize HTML input
-     * @param input input string
-     * @return sanitized string
-     */
-    public static String sanitizeHtml(String input) {
-        if (input == null) {
-            return null;
-        }
-        return input.replaceAll("<", "&lt;")
-                .replaceAll(">", "&gt;")
-                .replaceAll("\"", "&quot;")
-                .replaceAll("'", "&#x27;")
-                .replaceAll("/", "&#x2F;");
-    }
 }

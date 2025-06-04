@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpSession;
 public class SessionUtil {
 
     public static final String USER_ATTRIBUTE = "user";
-    public static final String CSRF_TOKEN_ATTRIBUTE = "csrfToken";
 
     /**
      * Get current user from session
@@ -35,34 +34,5 @@ public class SessionUtil {
      */
     public static void removeCurrentUser(HttpSession session) {
         session.removeAttribute(USER_ATTRIBUTE);
-    }
-
-    /**
-     * Check if user is logged in
-     * @param session HTTP session
-     * @return true if user is logged in
-     */
-    public static boolean isLoggedIn(HttpSession session) {
-        return getCurrentUser(session) != null;
-    }
-
-    /**
-     * Check if user has role
-     * @param session HTTP session
-     * @param role role to check
-     * @return true if user has the role
-     */
-    public static boolean hasRole(HttpSession session, String role) {
-        User user = getCurrentUser(session);
-        return user != null && user.getRole().getValue().equals(role);
-    }
-
-    /**
-     * Get CSRF token from session
-     * @param session HTTP session
-     * @return CSRF token
-     */
-    public static String getCsrfToken(HttpSession session) {
-        return (String) session.getAttribute(CSRF_TOKEN_ATTRIBUTE);
     }
 }
