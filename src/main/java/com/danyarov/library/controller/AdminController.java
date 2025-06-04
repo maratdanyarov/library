@@ -3,12 +3,12 @@ package com.danyarov.library.controller;
 import com.danyarov.library.exception.ServiceException;
 import com.danyarov.library.exception.ValidationException;
 import com.danyarov.library.model.Book;
-import com.danyarov.library.model.UserRole;
 import com.danyarov.library.model.User;
 import com.danyarov.library.service.BookService;
 import com.danyarov.library.service.UserService;
-import com.danyarov.library.util.SessionUtil;
 import com.danyarov.library.util.ValidationUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,23 +16,30 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
- * Admin controller
+ * Controller for administrative operations including user management and book catalog operations.
  */
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
+    private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
+
     private UserService userService;
     private BookService bookService;
 
+    /**
+     * Constructs the AdminController with user and book service dependencies.
+     */
     @Autowired
     public AdminController(UserService userService, BookService bookService) {
         this.userService = userService;
         this.bookService = bookService;
     }
 
+    /**
+     * Displays a list of all registered users.
+     */
     @GetMapping("/users")
     public String listUsers(Model model) {
         List<User> users = userService.findAll();
@@ -40,18 +47,26 @@ public class AdminController {
         return "admin/users";
     }
 
+    /**
+     * Toggles the active status of a user (enable/disable).
+     */
     @PostMapping("/users/{id}/toggle-status")
     public String toggleUserStatus(@PathVariable("id") Long id,
                                    RedirectAttributes redirectAttributes) {
         try {
+            logger.info("Toggling status for user with ID: {}", id);
             userService.toggleActiveStatus(id);
             redirectAttributes.addFlashAttribute("success", "User status updated");
         } catch (Exception e) {
+            logger.error("Failed to toggle user status", e);
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/admin/users";
     }
 
+    /**
+     * Displays a list of all books in the system and an empty book form.
+     */
     @GetMapping("/books")
     public String listBooks(Model model) {
         List<Book> books = bookService.findAll();
@@ -60,10 +75,14 @@ public class AdminController {
         return "admin/books";
     }
 
+    /**
+     * Adds a new book to the system after validating input.
+     */
     @PostMapping("/books")
     public String addBook(@ModelAttribute Book book,
                           RedirectAttributes redirectAttributes) {
         try {
+            logger.info("Attempting to add book: {}", book);
             ValidationUtil.validateRequired(book.getTitle(), "Title");
             ValidationUtil.validateRequired(book.getAuthor(), "Author");
             ValidationUtil.validatePositive(book.getTotalCopies(), "Total copies");
@@ -71,36 +90,50 @@ public class AdminController {
             bookService.save(book);
             redirectAttributes.addFlashAttribute("success", "Book added successfully");
         } catch (ValidationException | ServiceException e) {
+            logger.warn("Book creation failed: {}", e.getMessage());
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             redirectAttributes.addFlashAttribute("newBook", book);
         }
         return "redirect:/admin/books";
     }
 
+    /**
+     * Deletes a book by its ID.
+     */
     @PostMapping("/books/{id}/delete")
     public String deleteBook(@PathVariable("id") Long id,
                              RedirectAttributes redirectAttributes) {
         try {
+            logger.info("Attempting to delete book with ID: {}", id);
             bookService.delete(id);
             redirectAttributes.addFlashAttribute("success", "Book deleted successfully");
         } catch (Exception e) {
+            logger.error("Book deletion failed", e);
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/admin/books";
     }
 
+    /**
+     * Shows the form for editing a book's details.
+     */
     @GetMapping("/books/{id}/edit")
     public String showEditForm(@PathVariable("id") Long id, Model model) {
+        logger.info("Fetching book for editing with ID: {}", id);
         Book book = bookService.findById(id)
                 .orElseThrow(() -> new ServiceException("Book with id " + id + " not found"));
         model.addAttribute("book", book);
         return "admin/book-edit";
     }
 
+    /**
+     * Updates an existing book's details.
+     */
     @PostMapping("/books/{id}/edit")
     public String updateBook(@PathVariable("id") long id,
                              @ModelAttribute("book") Book book,
                              RedirectAttributes redirectAttributes) {
+        logger.info("Updating book with ID: {}", id);
         book.setId(id);
         bookService.update(book);
         redirectAttributes.addFlashAttribute("success", "Book updated successfully");

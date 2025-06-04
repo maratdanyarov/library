@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpSession;
 import java.util.List;
 
 /**
- * Order controller
+ * Controller responsible for managing user orders.
  */
 @Controller
 @RequestMapping("/orders")
@@ -30,6 +30,13 @@ public class OrderController {
         this.orderService = orderService;
     }
 
+    /**
+     * Displays the list of orders for the currently logged-in user.
+     *
+     * @param session the current HTTP session
+     * @param model   the model to add attributes to for the view
+     * @return the view for listing user's orders, or redirect to login if unauthorized
+     */
     @GetMapping("/my")
     public String myOrders(HttpSession session, Model model) {
         User user = SessionUtil.getCurrentUser(session);
@@ -44,6 +51,14 @@ public class OrderController {
         return "orders/list";
     }
 
+    /**
+     * Cancels a pending order if the logged-in user is the owner.
+     *
+     * @param id                 the ID of the order to cancel
+     * @param session            the current HTTP session
+     * @param redirectAttributes the attributes for flash messages
+     * @return redirection to user's orders page
+     */
     @PostMapping("/{id}/cancel")
     public String cancelOrder(@PathVariable("id") Long id,
                               HttpSession session,

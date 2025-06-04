@@ -8,12 +8,21 @@ import org.springframework.web.servlet.ModelAndView;
 import org.thymeleaf.exceptions.TemplateInputException;
 
 /**
- * Global exception handler for the application
+ * Global exception handler for the application.
+ * <p>
+ * This class handles exceptions that are thrown by any controller across the application.
+ * It ensures user-friendly error views and logs unexpected behaviors.
  */
 @ControllerAdvice
 public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    /**
+     * Handles exceptions related to missing or malformed Thymeleaf templates.
+     *
+     * @param e the TemplateInputException thrown
+     * @return a ModelAndView pointing to the error page with a descriptive message
+     */
     @ExceptionHandler(TemplateInputException.class)
     public ModelAndView handleTemplateInputException(TemplateInputException e) {
         logger.error("Template error: ", e);
@@ -22,6 +31,12 @@ public class GlobalExceptionHandler {
         return mav;
     }
 
+    /**
+     * Handles all other uncaught exceptions in the application.
+     *
+     * @param e the general Exception thrown
+     * @return a ModelAndView pointing to the error page with a generic error message
+     */
     @ExceptionHandler(Exception.class)
     public ModelAndView handleGeneralException(Exception e) {
         logger.error("Unexpected error: ", e);
