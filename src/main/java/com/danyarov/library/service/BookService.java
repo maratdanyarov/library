@@ -7,7 +7,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Book service interface
+ * Service interface for book-related operations.
+ *
+ * Provides methods to manage books, including retrieval, search,
+ * pagination, creation, update, and deletion.
  */
 public interface BookService {
     /**
@@ -23,6 +26,13 @@ public interface BookService {
      */
     List<Book> findAll();
 
+    /**
+     * Retrieves all books with pagination.
+     *
+     * @param pageNumber the page number (0-based)
+     * @param pageSize   the number of items per page
+     * @return a {@link Page} containing the books
+     */
     Page<Book> findAllPaginated(int pageNumber, int pageSize);
 
     /**
@@ -32,15 +42,24 @@ public interface BookService {
      */
     List<Book> search(String searchTerm);
 
+    /**
+     * Searches for books with pagination.
+     *
+     * @param searchTerm the term to search for
+     * @param pageNumber the page number (0-based)
+     * @param pageSize   the number of items per page
+     * @return a {@link Page} containing the search results
+     */
     Page<Book> searchPaginated(String searchTerm, int pageNumber, int pageSize);
 
     /**
-     * Find books by genre
-     * @param genre book genre
-     * @return list of books in specified genre
+     * Finds books by genre with pagination.
+     *
+     * @param genre      the genre to filter by
+     * @param pageNumber the page number (0-based)
+     * @param pageSize   the number of items per page
+     * @return a {@link Page} containing books of the specified genre
      */
-    List<Book> findByGenre(String genre);
-
     Page<Book> findByGenrePaginated(String genre, int pageNumber, int pageSize);
 
     /**
@@ -63,11 +82,4 @@ public interface BookService {
      * @return true if deleted, false otherwise
      */
     boolean delete(Long id);
-
-    /**
-     * Check if book is available
-     * @param bookId book ID
-     * @return true if available copies > 0
-     */
-    boolean isAvailable(Long bookId);
 }

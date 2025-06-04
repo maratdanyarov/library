@@ -101,31 +101,6 @@ public class UserDaoImpl implements UserDao {
 
     /** {@inheritDoc} */
     @Override
-    public List<User> findByRole(String role) {
-        String sql = "SELECT * FROM users WHERE user_role = ? ORDER BY id";
-        Connection conn = null;
-        List<User> users = new ArrayList<>();
-
-        try {
-            conn = connectionPool.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, role);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                users.add(mapResultSetToUser(rs));
-            }
-            return users;
-        } catch (SQLException e) {
-            logger.error("Error finding users by role: {}", role, e);
-            throw new DatabaseException("Error finding users by role", e);
-        } finally {
-            connectionPool.releaseConnection(conn);
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public User save(User user) {
         String sql = "INSERT INTO users (email, password, first_name, last_name, user_role, is_active) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";

@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * User service implementation
+ * Service layer implementation for managing {@link User} operations.
+ * Handles business logic related to user registration, authentication,
+ * updates, deletion, and account activation.
  */
 @Service
 public class UserServiceImpl implements UserService {
@@ -29,10 +31,11 @@ public class UserServiceImpl implements UserService {
         this.userDao = userDao;
     }
 
+    /** {@inheritDoc} */
     @Override
     public User register(User user) {
-
         if (userDao.findByEmail(user.getEmail()).isPresent()) {
+            logger.warn("Attempted to register existing user: {}", user.getEmail());
             throw new ServiceException("User with email " + user.getEmail() + " already exists");
         }
 
@@ -47,6 +50,7 @@ public class UserServiceImpl implements UserService {
         return userDao.save(user);
     }
 
+    /** {@inheritDoc} */
     @Override
     public Optional<User> authenticate(String email, String password) {
         Optional<User> userOpt = userDao.findByEmail(email);
@@ -69,30 +73,26 @@ public class UserServiceImpl implements UserService {
         return Optional.empty();
     }
 
+    /** {@inheritDoc} */
     @Override
     public Optional<User> findById(Long id) {
+        logger.debug("Finding user by ID: {}", id);
         return userDao.findById(id);
     }
 
-    @Override
-    public Optional<User> findByEmail(String email) {
-        return userDao.findByEmail(email);
-    }
-
+    /** {@inheritDoc} */
     @Override
     public List<User> findAll() {
+        logger.debug("Retrieving all users");
         return userDao.findAll();
     }
 
-    @Override
-    public List<User> findByRole(UserRole role) {
-        return userDao.findByRole(role.getValue());
-    }
-
+    /** {@inheritDoc} */
     @Override
     public User update(User user) {
         Optional<User> existingUser = userDao.findById(user.getId());
         if (existingUser.isEmpty()) {
+            logger.warn("Attempted to update non-existent user with id: {}", user.getId());
             throw new ServiceException("User not found with id: " + user.getId());
         }
 
@@ -107,16 +107,19 @@ public class UserServiceImpl implements UserService {
         return userDao.update(user);
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean delete(Long id) {
         logger.info("Deleting user with id: {}", id);
         return userDao.deleteById(id);
     }
 
+    /** {@inheritDoc} */
     @Override
     public User toggleActiveStatus(Long id) {
         Optional<User> userOpt = userDao.findById(id);
         if (userOpt.isEmpty()) {
+            logger.warn("Attempted to toggle status for non-existent user with id: {}", id);
             throw new ServiceException("User not found with id: " + id);
         }
 

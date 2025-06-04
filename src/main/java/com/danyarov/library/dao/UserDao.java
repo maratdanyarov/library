@@ -17,10 +17,4 @@ public interface UserDao extends BasicDao<User, Long> {
      */
     Optional<User> findByEmail(String email);
 
-    /**
-     * Find users by role
-     * @param role user role
-     * @return list of users with specified role
-     */
-    List<User> findByRole(String role);
 }

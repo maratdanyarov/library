@@ -69,6 +69,7 @@ public class ConnectionPool {
         if (instance == null) {
             synchronized (LOCK) {
                 if (instance == null) {
+                    logger.info("Initializing ConnectionPool instance");
                     instance = new ConnectionPool(url, user, password, initialPoolSize, maxPoolSize);
                 }
             }
@@ -101,6 +102,7 @@ public class ConnectionPool {
             }
             logger.info("Connection pool initialized with {} connections", initialPoolSize);
         } catch (ClassNotFoundException e) {
+            logger.error("Database driver not found", e);
             throw new DatabaseException("MySQL driver not found", e);
         }
     }
@@ -114,6 +116,7 @@ public class ConnectionPool {
         try {
             return DriverManager.getConnection(url, user, password);
         } catch (SQLException e) {
+            logger.error("Failed to create database connection", e);
             throw new DatabaseException("Failed to create connection", e);
         }
     }
@@ -134,6 +137,7 @@ public class ConnectionPool {
 
             if (connection == null) {
                 if (usedConnections.size() < maxPoolSize) {
+                    logger.warn("No idle connections available; creating new connection");
                     connection = createConnection();
                 } else {
                     throw new DatabaseException("Connection pool exhausted");
@@ -141,12 +145,14 @@ public class ConnectionPool {
             }
 
             if (!connection.isValid(1)) {
+                logger.warn("Invalid connection encountered; recreating");
                 connection = createConnection();
             }
 
             usedConnections.offer(connection);
             return connection;
         } catch (InterruptedException | SQLException e) {
+            logger.error("Failed to obtain connection", e);
             throw new DatabaseException("Failed to get connection from pool", e);
         }
     }
@@ -173,6 +179,7 @@ public class ConnectionPool {
                 availableConnections.offer(connection);
             } else {
                 connection.close();
+                logger.info("Connection closed instead of returning to pool");
             }
         } catch (SQLException e) {
             logger.error("Error releasing connection", e);

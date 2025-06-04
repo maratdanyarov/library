@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Order service interface
+ * Order service interface.
  */
 public interface OrderService {
     /**
@@ -71,12 +71,6 @@ public interface OrderService {
      * @return list of orders with user and book details
      */
     List<Order> findAllWithDetails();
-
-    /**
-     * Find pending orders with details
-     * @return list of pending orders with details
-     */
-    List<Order> findPendingOrdersWithDetails();
 
     /**
      * Check if user has active order for book

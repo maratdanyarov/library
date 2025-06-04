@@ -33,24 +33,10 @@ public interface UserService {
     Optional<User> findById(Long id);
 
     /**
-     * Find user by email
-     * @param email user email
-     * @return user or empty if not found
-     */
-    Optional<User> findByEmail(String email);
-
-    /**
      * Find all users
      * @return list of all users
      */
     List<User> findAll();
-
-    /**
-     * Find users by role
-     * @param role user role
-     * @return list of users with specified role
-     */
-    List<User> findByRole(UserRole role);
 
     /**
      * Update user
