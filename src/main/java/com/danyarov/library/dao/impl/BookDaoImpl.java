@@ -14,16 +14,24 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Book DAO implementation using JDBC
+ * JDBC-based implementation of the {@link BookDao} interface.
+ *
+ * Provides CRUD operations and advanced search functionality for managing {@link Book} entities
+ * in the library database. Utilizes a custom connection pool and includes support for pagination,
+ * search, and genre-based filtering.
  */
 public class BookDaoImpl implements BookDao {
     private static final Logger logger = LoggerFactory.getLogger(BookDaoImpl.class);
     private final ConnectionPool connectionPool;
 
+    /**
+     * Constructs a new instance of {@code BookDaoImpl} using a singleton {@link ConnectionPool}.
+     */
     public BookDaoImpl() {
         this.connectionPool = ConnectionPool.getInstance();
     }
 
+    /** {@inheritDoc} */
     @Override
     public Optional<Book> findById(Long id) {
         String sql = "SELECT * FROM books WHERE id = ?";
@@ -47,6 +55,7 @@ public class BookDaoImpl implements BookDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<Book> findAll() {
         String sql = "SELECT * FROM books ORDER BY title";
@@ -70,6 +79,7 @@ public class BookDaoImpl implements BookDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Page<Book> findAllPaginated(int pageNumber, int pageSize) {
         String sql = "SELECT * FROM books ORDER BY title LIMIT ? OFFSET ?";
@@ -101,54 +111,7 @@ public class BookDaoImpl implements BookDao {
         }
     }
 
-    @Override
-    public List<Book> findByTitle(String title) {
-        String sql = "SELECT * FROM books WHERE LOWER(title) LIKE LOWER(?) ORDER BY title";
-        Connection conn = null;
-        List<Book> books = new ArrayList<>();
-
-        try {
-            conn = connectionPool.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, "%" + title + "%");
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                books.add(mapResultSetToBook(rs));
-            }
-            return books;
-        } catch (SQLException e) {
-            logger.error("Error finding books by title: {}", title, e);
-            throw new DatabaseException("Error finding books by title", e);
-        } finally {
-            connectionPool.releaseConnection(conn);
-        }
-    }
-
-    @Override
-    public List<Book> findByAuthor(String author) {
-        String sql = "SELECT * FROM books WHERE LOWER(author) LIKE LOWER(?) ORDER BY title";
-        Connection conn = null;
-        List<Book> books = new ArrayList<>();
-
-        try {
-            conn = connectionPool.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, "%" + author + "%");
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                books.add(mapResultSetToBook(rs));
-            }
-            return books;
-        } catch (SQLException e) {
-            logger.error("Error finding books by author: {}", author, e);
-            throw new DatabaseException("Error finding books by author", e);
-        } finally {
-            connectionPool.releaseConnection(conn);
-        }
-    }
-
+    /** {@inheritDoc} */
     @Override
     public List<Book> findByGenre(String genre) {
         String sql = "SELECT * FROM books WHERE LOWER(genre) = LOWER(?) ORDER BY title";
@@ -173,6 +136,7 @@ public class BookDaoImpl implements BookDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Page<Book> findByGenrePaginated(String genre, int pageNumber, int pageSize) {
         String sql = "SELECT * FROM books WHERE LOWER(genre) = LOWER(?) ORDER BY title LIMIT ? OFFSET ?";
@@ -205,6 +169,7 @@ public class BookDaoImpl implements BookDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<Book> search(String searchTerm) {
         String sql = "SELECT * FROM books WHERE LOWER(title) LIKE LOWER(?) " +
@@ -235,6 +200,7 @@ public class BookDaoImpl implements BookDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Page<Book> searchPaginated(String searchTerm, int pageNumber, int pageSize) {
         String sql = "SELECT * FROM books WHERE LOWER(title) LIKE LOWER(?) " +
@@ -273,6 +239,7 @@ public class BookDaoImpl implements BookDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public long countAll() {
         String sql = "SELECT COUNT(*) FROM books";
@@ -295,6 +262,7 @@ public class BookDaoImpl implements BookDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public long countBySearchTerm(String searchTerm) {
         String sql = "SELECT COUNT(*) FROM books WHERE LOWER(title) LIKE LOWER(?) " +
@@ -324,6 +292,7 @@ public class BookDaoImpl implements BookDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public long countByGenre(String genre) {
         String sql = "SELECT COUNT(*) FROM books WHERE LOWER(genre) = LOWER(?)";
@@ -347,6 +316,7 @@ public class BookDaoImpl implements BookDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Book save(Book book) {
         String sql = "INSERT INTO books (title, author, isbn, genre, description, " +
@@ -398,6 +368,7 @@ public class BookDaoImpl implements BookDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Book update(Book book) {
         String sql = "UPDATE books SET title = ?, author = ?, isbn = ?, genre = ?, " +
@@ -443,6 +414,7 @@ public class BookDaoImpl implements BookDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean deleteById(Long id) {
         String sql = "DELETE FROM books WHERE id = ?";
@@ -464,6 +436,7 @@ public class BookDaoImpl implements BookDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void updateAvailableCopies(Long bookId, int delta) {
         String sql = "UPDATE books SET available_copies = available_copies + ? WHERE id = ?";
@@ -489,6 +462,13 @@ public class BookDaoImpl implements BookDao {
         }
     }
 
+    /**
+     * Maps a {@link ResultSet} row to a {@link Book} object.
+     *
+     * @param rs the result set containing book data
+     * @return a {@link Book} instance populated from the current row of the result set
+     * @throws SQLException if any column access fails
+     */
     private Book mapResultSetToBook(ResultSet rs) throws SQLException {
         Book book = new Book();
         book.setId(rs.getLong("id"));

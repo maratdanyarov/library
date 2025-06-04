@@ -13,16 +13,23 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Order DAO implementation using JDBC
+ * JDBC-based implementation of the {@link OrderDao} interface.
+ * <p>
+ * Manages {@link Order} records in the system, including creation, retrieval,
+ * updates, deletions, and searches with or without related entity details.
  */
 public class OrderDaoImpl implements OrderDao {
     private static final Logger logger = LoggerFactory.getLogger(OrderDaoImpl.class);
     private final ConnectionPool connectionPool;
 
+    /**
+     * Constructs a new instance of {@code OrderDaoImpl} using the singleton connection pool.
+     */
     public OrderDaoImpl() {
         this.connectionPool = ConnectionPool.getInstance();
     }
 
+    /** {@inheritDoc} */
     @Override
     public Optional<Order> findById(Long id) {
         String sql = "SELECT * FROM book_orders WHERE id = ?";
@@ -46,6 +53,7 @@ public class OrderDaoImpl implements OrderDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<Order> findAll() {
         String sql = "SELECT * FROM book_orders ORDER BY order_date DESC";
@@ -69,6 +77,7 @@ public class OrderDaoImpl implements OrderDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<Order> findByUserId(Long userId) {
         String sql = "SELECT * FROM book_orders WHERE user_id = ? ORDER BY order_date DESC";
@@ -93,6 +102,7 @@ public class OrderDaoImpl implements OrderDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<Order> findByStatus(OrderStatus status) {
         String sql = "SELECT * FROM book_orders WHERE status = ? ORDER BY order_date DESC";
@@ -117,30 +127,7 @@ public class OrderDaoImpl implements OrderDao {
         }
     }
 
-    @Override
-    public List<Order> findByBookId(Long bookId) {
-        String sql = "SELECT * FROM book_orders WHERE book_id = ? ORDER BY order_date DESC";
-        Connection conn = null;
-        List<Order> orders = new ArrayList<>();
-
-        try {
-            conn = connectionPool.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setLong(1, bookId);
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                orders.add(mapResultSetToOrder(rs));
-            }
-            return orders;
-        } catch (SQLException e) {
-            logger.error("Error finding orders by book id: {}", bookId, e);
-            throw new DatabaseException("Error finding orders by book id", e);
-        } finally {
-            connectionPool.releaseConnection(conn);
-        }
-    }
-
+    /** {@inheritDoc} */
     @Override
     public Optional<Order> findActiveOrderByUserAndBook(Long userId, Long bookId) {
         String sql = "SELECT * FROM book_orders WHERE user_id = ? AND book_id = ? " +
@@ -166,6 +153,7 @@ public class OrderDaoImpl implements OrderDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Order save(Order order) {
         String sql = "INSERT INTO book_orders (user_id, book_id, book_copy_id, order_type, " +
@@ -222,6 +210,7 @@ public class OrderDaoImpl implements OrderDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Order update(Order order) {
         String sql = "UPDATE book_orders SET user_id = ?, book_id = ?, book_copy_id = ?, " +
@@ -270,6 +259,7 @@ public class OrderDaoImpl implements OrderDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean deleteById(Long id) {
         String sql = "DELETE FROM book_orders WHERE id = ?";
@@ -291,6 +281,7 @@ public class OrderDaoImpl implements OrderDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<Order> findAllWithDetails() {
         String sql = "SELECT o.*, u.email, u.first_name, u.last_name, " +
@@ -323,6 +314,7 @@ public class OrderDaoImpl implements OrderDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<Order> findByStatusWithDetails(OrderStatus status) {
         String sql = "SELECT o.*, u.email, u.first_name, u.last_name, " +
@@ -357,6 +349,13 @@ public class OrderDaoImpl implements OrderDao {
         }
     }
 
+    /**
+     * Maps a result set row to a basic {@link Order} entity.
+     *
+     * @param rs result set containing order fields
+     * @return populated {@link Order} instance
+     * @throws SQLException if result set parsing fails
+     */
     private Order mapResultSetToOrder(ResultSet rs) throws SQLException {
         Order order = new Order();
         order.setId(rs.getLong("id"));
@@ -382,6 +381,13 @@ public class OrderDaoImpl implements OrderDao {
         return order;
     }
 
+    /**
+     * Maps a result set row to a full {@link Order} entity, including user, book, and librarian details.
+     *
+     * @param rs result set containing joined data
+     * @return fully populated {@link Order} instance
+     * @throws SQLException if result set parsing fails
+     */
     private Order mapResultSetToOrderWithDetails(ResultSet rs) throws SQLException {
         Order order = mapResultSetToOrder(rs);
 

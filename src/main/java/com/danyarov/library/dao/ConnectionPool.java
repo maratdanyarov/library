@@ -13,7 +13,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Thread-safe connection pool implementation using Singleton pattern
+ * Thread-safe singleton connection pool for managing JDBC connections.
+ * <p>
+ * Connections are created lazily and reused to avoid performance overhead.
+ * Properly handles shutdown and reinitialization logic.
  */
 public class ConnectionPool {
     private static final Logger logger = LoggerFactory.getLogger(ConnectionPool.class);
@@ -30,6 +33,15 @@ public class ConnectionPool {
     private final int maxPoolSize;
     private final int initialPoolSize;
 
+    /**
+     * Private constructor to initialize the pool.
+     *
+     * @param url              database URL
+     * @param user             database username
+     * @param password         database password
+     * @param initialPoolSize  number of connections to start with
+     * @param maxPoolSize      maximum number of total connections
+     */
     private ConnectionPool(String url, String user, String password,
                            int initialPoolSize, int maxPoolSize) {
         this.url = url;
@@ -65,7 +77,8 @@ public class ConnectionPool {
     }
 
     /**
-     * Get current instance
+     * Retrieves the already initialized pool instance.
+     *
      * @return ConnectionPool instance
      */
     public static ConnectionPool getInstance() {
@@ -75,6 +88,9 @@ public class ConnectionPool {
         return instance;
     }
 
+    /**
+     * Retrieves the already initialized pool instance.
+     */
     private void initializePool() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -89,6 +105,11 @@ public class ConnectionPool {
         }
     }
 
+    /**
+     * Creates a new database connection.
+     *
+     * @return new {@link Connection}
+     */
     private Connection createConnection() {
         try {
             return DriverManager.getConnection(url, user, password);
@@ -98,9 +119,10 @@ public class ConnectionPool {
     }
 
     /**
-     * Get connection from pool
-     * @return Connection
-     * @throws DatabaseException if unable to get connection
+     * Provides a connection from the pool.
+     *
+     * @return an available {@link Connection}
+     * @throws DatabaseException if no connections are available or an error occurs
      */
     public Connection getConnection() {
         if (isShutdown.get()) {
@@ -130,8 +152,9 @@ public class ConnectionPool {
     }
 
     /**
-     * Return connection to pool
-     * @param connection Connection to return
+     * Returns a connection to the pool or closes it if invalid.
+     *
+     * @param connection connection to release
      */
     public void releaseConnection(Connection connection) {
         if (connection == null) {
@@ -162,7 +185,7 @@ public class ConnectionPool {
     }
 
     /**
-     * Shutdown connection pool
+     * Gracefully shuts down the connection pool and closes all connections.
      */
     public void shutdown() {
         isShutdown.set(true);
@@ -173,6 +196,11 @@ public class ConnectionPool {
         logger.info("Connection pool shutdown complete");
     }
 
+    /**
+     * Closes all connections in the specified queue.
+     *
+     * @param connections queue of connections to close
+     */
     private void closeConnections(BlockingQueue<Connection> connections) {
         Connection connection;
         while ((connection = connections.poll()) != null) {

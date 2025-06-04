@@ -4,40 +4,19 @@ import com.danyarov.library.model.Book;
 import com.danyarov.library.model.Page;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Book DAO interface
  */
-public interface BookDao {
-    /**
-     * Find book by ID
-     * @param id book ID
-     * @return Optional containing book if found
-     */
-    Optional<Book> findById(Long id);
+public interface BookDao extends BasicDao<Book, Long> {
 
     /**
-     * Find all books
-     * @return list of all books
+     * Find all books with pagination
+     * @param pageNumber page number (0-based)
+     * @param pageSize number of items per page
+     * @return page of books
      */
-    List<Book> findAll();
-
     Page<Book> findAllPaginated(int pageNumber, int pageSize);
-
-    /**
-     * Find books by title (partial match)
-     * @param title book title
-     * @return list of matching books
-     */
-    List<Book> findByTitle(String title);
-
-    /**
-     * Find books by author (partial match)
-     * @param author book author
-     * @return list of matching books
-     */
-    List<Book> findByAuthor(String author);
 
     /**
      * Find books by genre
@@ -46,7 +25,13 @@ public interface BookDao {
      */
     List<Book> findByGenre(String genre);
 
-
+    /**
+     * Find books by genre with pagination
+     * @param genre book genre
+     * @param pageNumber page number (0-based)
+     * @param pageSize number of items per page
+     * @return page of books in specified genre
+     */
     Page<Book> findByGenrePaginated(String genre, int pageNumber, int pageSize);
 
     /**
@@ -56,34 +41,34 @@ public interface BookDao {
      */
     List<Book> search(String searchTerm);
 
+    /**
+     * Search books with pagination
+     * @param searchTerm search term
+     * @param pageNumber page number (0-based)
+     * @param pageSize number of items per page
+     * @return page of matching books
+     */
     Page<Book> searchPaginated(String searchTerm, int pageNumber, int pageSize);
 
+    /**
+     * Count all books
+     * @return total count
+     */
     long countAll();
 
+    /**
+     * Count books matching search term
+     * @param searchTerm search term
+     * @return count of matching books
+     */
     long countBySearchTerm(String searchTerm);
 
+    /**
+     * Count books by genre
+     * @param genre book genre
+     * @return count of books in genre
+     */
     long countByGenre(String genre);
-
-    /**
-     * Save new book
-     * @param book book to save
-     * @return saved book with generated ID
-     */
-    Book save(Book book);
-
-    /**
-     * Update existing book
-     * @param book book to update
-     * @return updated book
-     */
-    Book update(Book book);
-
-    /**
-     * Delete book by ID
-     * @param id book ID
-     * @return true if deleted, false otherwise
-     */
-    boolean deleteById(Long id);
 
     /**
      * Update available copies count

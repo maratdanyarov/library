@@ -14,7 +14,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * User DAO implementation using JDBC
+ * JDBC-based implementation of the {@link UserDao} interface.
+ *
+ * Provides methods for CRUD operations and queries on {@link User} entities.
+ * Relies on a custom {@link ConnectionPool} to manage database connections.
  */
 public class UserDaoImpl implements UserDao {
     private static final Logger logger = LoggerFactory.getLogger(UserDaoImpl.class);
@@ -24,6 +27,7 @@ public class UserDaoImpl implements UserDao {
         this.connectionPool = ConnectionPool.getInstance();
     }
 
+    /** {@inheritDoc} */
     @Override
     public Optional<User> findById(Long id) {
         String sql = "SELECT * FROM users WHERE id = ?";
@@ -47,6 +51,7 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Optional<User> findByEmail(String email) {
         String sql = "SELECT * FROM users WHERE email = ?";
@@ -70,6 +75,7 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<User> findAll() {
         String sql = "SELECT * FROM users ORDER BY id";
@@ -93,6 +99,7 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<User> findByRole(String role) {
         String sql = "SELECT * FROM users WHERE user_role = ? ORDER BY id";
@@ -117,6 +124,7 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public User save(User user) {
         String sql = "INSERT INTO users (email, password, first_name, last_name, user_role, is_active) " +
@@ -156,6 +164,7 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public User update(User user) {
         String sql = "UPDATE users SET email = ?, first_name = ?, last_name = ?, " +
@@ -187,6 +196,7 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean deleteById(Long id) {
         String sql = "DELETE FROM users WHERE id = ?";
@@ -208,6 +218,13 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    /**
+     * Maps a {@link ResultSet} row to a {@link User} object.
+     *
+     * @param rs the result set containing user data
+     * @return a {@link User} instance populated from the current row of the result set
+     * @throws SQLException if any column access fails
+     */
     private User mapResultSetToUser(ResultSet rs) throws SQLException {
         User user = new User();
         user.setId(rs.getLong("id"));

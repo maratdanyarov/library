@@ -9,20 +9,7 @@ import java.util.Optional;
 /**
  * Order DAO interface
  */
-public interface OrderDao {
-    /**
-     * Find order by ID
-     * @param id order ID
-     * @return Optional containing order if found
-     */
-    Optional<Order> findById(Long id);
-
-    /**
-     * Find all orders
-     * @return list of all orders
-     */
-    List<Order> findAll();
-
+public interface OrderDao extends BasicDao<Order, Long> {
     /**
      * Find orders by user ID
      * @param userId user ID
@@ -38,40 +25,12 @@ public interface OrderDao {
     List<Order> findByStatus(OrderStatus status);
 
     /**
-     * Find orders by book ID
-     * @param bookId book ID
-     * @return list of orders for specified book
-     */
-    List<Order> findByBookId(Long bookId);
-
-    /**
      * Find active order for book by user
      * @param userId user ID
      * @param bookId book ID
      * @return Optional containing active order if found
      */
     Optional<Order> findActiveOrderByUserAndBook(Long userId, Long bookId);
-
-    /**
-     * Save new order
-     * @param order order to save
-     * @return saved order with generated ID
-     */
-    Order save(Order order);
-
-    /**
-     * Update existing order
-     * @param order order to update
-     * @return updated order
-     */
-    Order update(Order order);
-
-    /**
-     * Delete order by ID
-     * @param id order ID
-     * @return true if deleted, false otherwise
-     */
-    boolean deleteById(Long id);
 
     /**
      * Find orders with full details (including user and book info)
