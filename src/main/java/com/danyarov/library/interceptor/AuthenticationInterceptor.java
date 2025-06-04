@@ -9,10 +9,23 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * Authentication interceptor to check user login status
+ * Authentication and authorization interceptor.
+ * <p>
+ * This interceptor checks whether the user is authenticated
+ * and restricts access based on user roles (ADMIN, LIBRARIAN, READER).
+ * It also adds the current user to the model for view rendering.
  */
 public class AuthenticationInterceptor implements HandlerInterceptor {
 
+    /**
+     * Performs authentication and role-based access control before the controller is invoked.
+     *
+     * @param request  the HTTP request
+     * @param response the HTTP response
+     * @param handler  the handler object chosen to handle the request
+     * @return {@code true} if the request should proceed to the controller, {@code false} otherwise
+     * @throws Exception if an error occurs during authentication check
+     */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
                              Object handler) throws Exception {
@@ -59,6 +72,15 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         return true;
     }
 
+    /**
+     * Adds the current authenticated user to the model after the controller method is invoked.
+     *
+     * @param request      the HTTP request
+     * @param response     the HTTP response
+     * @param handler      the handler object
+     * @param modelAndView the model and view object to which attributes can be added
+     * @throws Exception if an error occurs
+     */
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response,
                            Object handler, ModelAndView modelAndView) throws Exception {
