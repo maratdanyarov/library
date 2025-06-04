@@ -3,6 +3,7 @@ package com.danyarov.library.controller;
 import com.danyarov.library.exception.ServiceException;
 import com.danyarov.library.exception.ValidationException;
 import com.danyarov.library.model.Book;
+import com.danyarov.library.model.Page;
 import com.danyarov.library.model.User;
 import com.danyarov.library.service.BookService;
 import com.danyarov.library.service.UserService;
@@ -24,6 +25,7 @@ import java.util.List;
 @RequestMapping("/admin")
 public class AdminController {
     private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
+    private static final int DEFAULT_PAGE_SIZE = 20;
 
     private UserService userService;
     private BookService bookService;
@@ -65,13 +67,39 @@ public class AdminController {
     }
 
     /**
-     * Displays a list of all books in the system and an empty book form.
+     * Displays a list of all books with search and pagination support.
      */
     @GetMapping("/books")
-    public String listBooks(Model model) {
-        List<Book> books = bookService.findAll();
-        model.addAttribute("books", books);
+    public String listBooks(@RequestParam(required = false) String search,
+                            @RequestParam(defaultValue = "0") int page,
+                            @RequestParam(defaultValue = "20") int size,
+                            Model model) {
+        Page<Book> bookPage;
+
+        // Ensure page parameters are valid
+        if (page < 0) page = 0;
+        if (size <= 0) size = DEFAULT_PAGE_SIZE;
+
+        if (search != null && !search.trim().isEmpty()) {
+            bookPage = bookService.searchPaginated(search, page, size);
+            model.addAttribute("search", search);
+        } else {
+            bookPage = bookService.findAllPaginated(page, size);
+        }
+
+        model.addAttribute("bookPage", bookPage);
+        model.addAttribute("books", bookPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", size);
         model.addAttribute("newBook", new Book());
+
+        // For pagination links
+        if (search != null) {
+            model.addAttribute("searchParam", "&search=" + search);
+        } else {
+            model.addAttribute("searchParam", "");
+        }
+
         return "admin/books";
     }
 
@@ -80,6 +108,8 @@ public class AdminController {
      */
     @PostMapping("/books")
     public String addBook(@ModelAttribute Book book,
+                          @RequestParam(defaultValue = "0") int page,
+                          @RequestParam(required = false) String search,
                           RedirectAttributes redirectAttributes) {
         try {
             logger.info("Attempting to add book: {}", book);
@@ -94,7 +124,13 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             redirectAttributes.addFlashAttribute("newBook", book);
         }
-        return "redirect:/admin/books";
+
+        // Maintain search and pagination state
+        String redirect = "redirect:/admin/books?page=" + page;
+        if (search != null && !search.isEmpty()) {
+            redirect += "&search=" + search;
+        }
+        return redirect;
     }
 
     /**
@@ -102,6 +138,8 @@ public class AdminController {
      */
     @PostMapping("/books/{id}/delete")
     public String deleteBook(@PathVariable("id") Long id,
+                             @RequestParam(defaultValue = "0") int page,
+                             @RequestParam(required = false) String search,
                              RedirectAttributes redirectAttributes) {
         try {
             logger.info("Attempting to delete book with ID: {}", id);
@@ -111,7 +149,13 @@ public class AdminController {
             logger.error("Book deletion failed", e);
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
-        return "redirect:/admin/books";
+
+        // Maintain search and pagination state
+        String redirect = "redirect:/admin/books?page=" + page;
+        if (search != null && !search.isEmpty()) {
+            redirect += "&search=" + search;
+        }
+        return redirect;
     }
 
     /**
