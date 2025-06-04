@@ -8,7 +8,11 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.servlet.DispatcherServlet;
 
 /**
- * Web application initializer (replaces web.xml)
+ * Initializes the Spring web application.
+ * <p>
+ * This class is automatically detected and executed during application startup.
+ * It sets up the application context, registers the Spring DispatcherServlet,
+ * and configures global settings such as encoding and security filters.
  */
 public class WebAppInitializer implements WebApplicationInitializer {
 

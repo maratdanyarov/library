@@ -9,7 +9,10 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
 /**
- * Database configuration
+ * Configuration class for database connection pool setup.
+ * <p>
+ * Initializes and exposes a singleton {@link ConnectionPool} instance
+ * based on values from the application properties file.
  */
 @Configuration
 public class DatabaseConfig {
@@ -31,6 +34,20 @@ public class DatabaseConfig {
 
     private ConnectionPool connectionPool;
 
+    /**
+     * Provides the {@link ConnectionPool} bean to the Spring container.
+     *
+     * @return the configured singleton ConnectionPool instance
+     */
+    @Bean
+    public ConnectionPool connectionPool() {
+        return connectionPool;
+    }
+
+    /**
+     * Initializes the {@link ConnectionPool} after dependency injection.
+     * This method is invoked automatically after bean creation.
+     */
     @PostConstruct
     public void init() {
         connectionPool = ConnectionPool.getInstance(
@@ -38,15 +55,14 @@ public class DatabaseConfig {
         );
     }
 
+    /**
+     * Gracefully shuts down the connection pool during application shutdown.
+     * Invoked automatically by Spring container before bean destruction.
+     */
     @PreDestroy
     public void destroy() {
         if (connectionPool != null) {
             connectionPool.shutdown();
         }
-    }
-
-    @Bean
-    public ConnectionPool connectionPool() {
-        return connectionPool;
     }
 }

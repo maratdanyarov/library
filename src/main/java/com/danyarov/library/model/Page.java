@@ -4,6 +4,7 @@ import java.util.List;
 
 /**
  * Generic pagination wrapper class
+ * <p>
  * @param <T> the type of objects in the page
  */
 public class Page<T> {

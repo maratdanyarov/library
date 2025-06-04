@@ -17,7 +17,10 @@ import org.thymeleaf.templatemode.TemplateMode;
 import java.util.Locale;
 
 /**
- * Spring MVC configuration
+ * Spring MVC configuration class.
+ * <p>
+ * Configures Thymeleaf view resolver, static resources, locale resolution,
+ * and request interceptors including custom authentication logic.
  */
 @Configuration
 @EnableWebMvc
@@ -25,11 +28,21 @@ public class WebConfig implements WebMvcConfigurer {
 
     private LocaleChangeInterceptor localeChangeInterceptor;
 
+    /**
+     * Constructor injection for LocaleChangeInterceptor.
+     *
+     * @param localeChangeInterceptor the interceptor for changing locale based on request parameter
+     */
     @Autowired
     public WebConfig(LocaleChangeInterceptor localeChangeInterceptor) {
         this.localeChangeInterceptor = localeChangeInterceptor;
     }
 
+    /**
+     * Configures the session-based locale resolver.
+     *
+     * @return configured LocaleResolver
+     */
     @Bean
     public LocaleResolver localeResolver() {
         SessionLocaleResolver localeResolver = new SessionLocaleResolver();
@@ -37,6 +50,11 @@ public class WebConfig implements WebMvcConfigurer {
         return localeResolver;
     }
 
+    /**
+     * Configures the Thymeleaf template resolver.
+     *
+     * @return SpringResourceTemplateResolver
+     */
     @Bean
     public SpringResourceTemplateResolver templateResolver() {
         SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
@@ -48,6 +66,11 @@ public class WebConfig implements WebMvcConfigurer {
         return templateResolver;
     }
 
+    /**
+     * Configures the Thymeleaf template engine.
+     *
+     * @return SpringTemplateEngine with Spring EL support enabled
+     */
     @Bean
     public SpringTemplateEngine templateEngine() {
         SpringTemplateEngine templateEngine = new SpringTemplateEngine();
@@ -56,6 +79,11 @@ public class WebConfig implements WebMvcConfigurer {
         return templateEngine;
     }
 
+    /**
+     * Configures the Thymeleaf view resolver.
+     *
+     * @return configured ThymeleafViewResolver
+     */
     @Bean
     public ViewResolver viewResolver() {
         ThymeleafViewResolver viewResolver = new ThymeleafViewResolver();
@@ -65,6 +93,11 @@ public class WebConfig implements WebMvcConfigurer {
         return viewResolver;
     }
 
+    /**
+     * Registers static resource handlers for CSS and JS files.
+     *
+     * @param registry the resource handler registry
+     */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/css/**")
@@ -73,6 +106,11 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations("/static/js/");
     }
 
+    /**
+     * Adds locale change and authentication interceptors.
+     *
+     * @param registry the interceptor registry
+     */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(localeChangeInterceptor);
@@ -81,6 +119,11 @@ public class WebConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/", "/login", "/register", "/static/**", "/books", "/books/search");
     }
 
+    /**
+     * Maps the root path (\"/\") to redirect to the book listing page.
+     *
+     * @param registry the view controller registry
+     */
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
         registry.addViewController("/").setViewName("redirect:/books");
