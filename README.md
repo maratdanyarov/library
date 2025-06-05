@@ -1,6 +1,8 @@
 # Library Management System
 
-A web-based library management system built with Spring MVC, JDBC, and Thymeleaf.
+A web-based library management system built with Spring MVC, JDBC, and Thymeleaf. This project was developed as a capstone project within the Java Development with AI Tools program, delivered by EPAM and supported by the Tech Orda voucher initiative. The program provided comprehensive training in Java programming, object-oriented design, web technologies, and practical use of AI-enhanced development tools such as ChatGPT and GitHub Copilot. Through a balanced combination of theoretical learning and hands-on project work, the program prepared participants for real-world Java development roles by emphasizing skills in core Java, Spring Framework, database integration, and the MVC architectural pattern.
+
+The capstone project represents the culmination of this training, demonstrating applied knowledge in building scalable Java-based web applications using modern development practices.
 
 ## Features
 
@@ -144,15 +146,3 @@ The application supports:
 - Russian
 
 Switch languages using the dropdown in the navigation bar.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-
-This project is licensed under the MIT License.
